@@ -1,7 +1,9 @@
-权限系统的CRUD 资源-角色-用户 三权限 基本满足后台管理系统的权限需求。
+权限系统的CRUD包括： 资源-角色-用户 三权限，以及tree树等。 基本满足后台管理系统的权限需求。
+不包括页面，页面使用需要根据接口自定义
 包含sql脚本
 依赖common_basic
 管理系统依赖此项目包即可实现权限的功能
 引入此项目的工程需要在拦截器中配置拦截使得拦截器生效
-此工程所有请求均已permision开头,因此可以如下配置.
+此工程所有请求均已permision开头,因此可以如下配置拦截器
  registry.addInterceptor(new AuthPermisInterceptor()).addPathPatterns("/permision/**");
+ AuthPermisInterceptor为本项目中内置的拦截器,使用者也可自定义拦截器进行权限管理
