@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE mapper 
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    <mapper namespace="com.managesys.permissions.dao.ILoginDao" >
+
+     <select id="findByUserName" parameterType="com.managesys.permissions.entity.SysUserEntity" resultType="com.managesys.permissions.entity.SysUserEntity">
+          select id id ,name name,password password,create_time createTime,status status
+          from  sys_user where name = #{name} and status = #{status}
+     </select>
+     
+     <!-- 查询用户权限集合 -->
+     <select id="findUserPermissions" parameterType="com.managesys.permissions.entity.SysUserEntity" resultType="com.managesys.permissions.entity.SysUserEntity">
+            select  id id, pid pid, name name, path path,create_time createTime
+            from sys_menu where  id in
+            (select  mid from sys_role_menu  where  rid  in
+              (select rid  from  sys_user_role  where uid = #{id})) 
+     </select>
+    </mapper>

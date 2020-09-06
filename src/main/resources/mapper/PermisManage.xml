@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE mapper 
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    <mapper namespace="com.managesys.permissions.dao.IPermisManageDao" >
+     
+     <!-- 查询用户权限集合 -->
+     <select id="findUserPermissions" parameterType="com.managesys.permissions.entity.SysUserEntity" resultType="com.managesys.permissions.entity.SysMenuEntity">
+            select  id id, pid pid, name name, path path,create_time createTime
+            from sys_menu where  id in
+            (select  mid from sys_role_menu  where  rid  in(select rid  from  sys_user_role  where uid = #{id})) 
+     </select>
+     
+     <!-- 分页查询 用户角色列表 -->
+     <select id="getRoleByPage"  resultMap="sysRoleVo">
+        select id  id,name name,create_time createTime from  sys_role
+     </select>
+     <resultMap type="com.managesys.permissions.entity.SysRoleVo" id="sysRoleVo">
+        <id  column="id"  property="id"/>
+        <association property="menusName"  column="id" javaType="ArrayList" select="queryMenuNames">
+        </association>
+        <association property="userName"  column="id" javaType="ArrayList" select="queryUserNames">
+        </association>
+     </resultMap>
+     <select id="queryMenuNames" parameterType="int" resultType="String">
+          select name from  sys_menu where   id  in  (select mid  from sys_role_menu where  rid = #{id})
+     </select>
+     <select id="queryUserNames" parameterType="int" resultType="String">
+          select name from  sys_user  where  status = 1  and    id  in  (select uid  from sys_user_role where  rid = #{id})
+     </select>
+     
+     <!-- 查询所有的菜单集合 -->
+     <select id="findAllMenus" resultType="com.managesys.permissions.entity.SysMenuEntity" >
+            select  id id, pid pid, name name, path path,create_time createTime
+            from sys_menu  order by id asc
+     </select>
+     
+     <!-- 根据角色查询角色对应的菜单权限集合 -->
+     <select id="findRolePermissions"   parameterType="com.managesys.permissions.entity.SysRoleEntity"  resultType="com.managesys.permissions.entity.SysMenuEntity" >
+         select  id id, pid pid, name name, path path,create_time createTime
+            from sys_menu where  id in
+            (select  mid from sys_role_menu  where  rid  = #{id})
+     </select>
+           
+     <!-- 根据非空字段查询角色对象 -->
+     <select id="getSysRoleByFile" parameterType="com.managesys.permissions.entity.SysRoleEntity" resultType="com.managesys.permissions.entity.SysRoleEntity">
+       select id id,name name,create_time createTime from  sys_role
+       <where>
+           <if test="id != null">
+            and  id = #{id}
+           </if>
+           <if test="name != null">
+            and  name = #{name}
+           </if>
+       </where>
+     </select>
+     
+     <!-- 插入角色对象 -->
+     <insert id="insertRole" parameterType="com.managesys.permissions.entity.SysRoleEntity"  useGeneratedKeys="true" keyProperty="id">
+       insert into sys_role (id,name,create_time) values (#{id,jdbcType=INTEGER},#{name,jdbcType=VARCHAR},#{createTime,jdbcType=TIMESTAMP}) 
+     </insert>
+     
+     <!-- 根据id修改role表 -->
+     <update id="updateRoleById" parameterType="com.managesys.permissions.entity.SysRoleEntity">
+        update sys_role set name = #{name} where id = #{id}
+     </update>
+     
+     <!-- 根据id删除角色 -->
+     <delete id="delRoleById" parameterType="com.managesys.permissions.entity.SysRoleEntity">
+        delete  from sys_role where id = #{id}  
+     </delete>
+     
+     <!-- 批量插入角色-菜单数据 -->
+     <insert id="insertsRoleMenu"  parameterType="java.util.List" >
+         insert into sys_role_menu (id,rid,mid,create_time)   
+	       values  
+	    <foreach collection="list" item="item" index="index" separator="," >  
+	        (#{item.id,jdbcType=INTEGER},#{item.rid,jdbcType=INTEGER},#{item.mid,jdbcType=INTEGER},#{item.createTime,jdbcType=TIMESTAMP})  
+	    </foreach>  
+     </insert>
+     
+     <!-- 物理删除 角色——菜单 表的数据 根据非空字段 -->
+     <delete id="delRoleMenuByFile"   parameterType="com.managesys.permissions.entity.SysRoleMenuEntity" >
+         delete  from sys_role_menu  
+         <where>
+              <if test="id != null">
+                and id = #{id}
+              </if>
+               <if test="rid != null">
+                and rid = #{rid}
+              </if>
+               <if test="mid != null">
+                and mid = #{mid}
+              </if>
+         </where>
+     </delete>
+     
+     <!-- 获取所有的角色 -->
+     <select id="getAllSysRole"  resultType="com.managesys.permissions.entity.SysRoleEntity">
+         select id id,name name,create_time createTime from  sys_role
+     </select>
+     
+    </mapper>
